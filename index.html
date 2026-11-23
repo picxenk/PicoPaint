@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>PicoPaint</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="menubar"></div>
+
+    <div id="toolbox" class="palette"></div>
+    <canvas id="linewidth" class="palette" width="52" height="64"></canvas>
+
+    <div id="window" class="palette">
+      <div id="titlebar">
+        <div id="closebox"></div>
+        <span id="title">untitled</span>
+      </div>
+      <canvas id="view" width="416" height="240"></canvas>
+    </div>
+
+    <div id="patterns" class="palette"></div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

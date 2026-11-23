@@ -1,0 +1,273 @@
+/* PicoPaint — 512 × 342 (원본 Mac 화면)을 기준으로 배치하고, main.js가 정수배로 확대한다. */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+body {
+  font: bold 12px/1 "ChiKareGo2", "ChiKareGo", "Chicago", "Charcoal", "Geneva", sans-serif;
+  -webkit-font-smoothing: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* 회색은 색이 아니라 디더 패턴이다. --pattern-* 변수는 main.js가 패턴 데이터로 만든다. */
+#app {
+  position: absolute;
+  width: 512px;
+  height: 342px;
+  overflow: hidden;
+  transform-origin: 0 0;
+  background: #fff var(--pattern-gray);
+  background-size: 8px 8px;
+  image-rendering: pixelated;
+  cursor: default;
+}
+
+.palette {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 1px 1px 0 #000;
+}
+
+/* 비활성 글자: 50% 회색 패턴으로 칠한 글자 */
+.disabled {
+  color: transparent;
+  background-image: var(--pattern-gray);
+  background-size: 8px 8px;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ---------- 메뉴 바 ---------- */
+
+#menubar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 512px;
+  height: 20px;
+  display: flex;
+  padding-left: 8px;
+  background: #fff;
+  border-bottom: 1px solid #000;
+}
+
+.menu-title {
+  height: 19px;
+  padding: 0 7px;
+  line-height: 19px;
+}
+
+.menu-title canvas {
+  margin-top: 2px;
+}
+
+.menu-title.open {
+  background: #000;
+  color: #fff;
+}
+
+.menu-title.open canvas {
+  filter: invert(1);
+}
+
+.menu {
+  position: absolute;
+  top: 19px;
+  z-index: 10;
+  min-width: 140px;
+  padding: 1px 0;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 1px 1px 0 #000;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  height: 16px;
+  padding: 0 8px 0 14px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.menu-item:not(.disabled):hover {
+  background: #000;
+  color: #fff;
+}
+
+.menu-separator {
+  height: 1px;
+  margin: 3px 0;
+  background-image: var(--pattern-gray);
+  background-size: 8px 8px;
+}
+
+/* ---------- 팔레트 ---------- */
+
+#toolbox {
+  left: 16px;
+  top: 28px;
+  width: 54px;
+  height: 122px;
+  display: grid;
+  grid-template-columns: 26px 26px;
+  grid-auto-rows: 20px;
+}
+
+.tool.selected canvas {
+  filter: invert(1);
+}
+
+#linewidth {
+  left: 16px;
+  top: 264px;
+  width: 54px;
+  height: 66px;
+}
+
+#patterns {
+  left: 78px;
+  top: 297px;
+  height: 33px;
+  display: flex;
+}
+
+#pattern-current {
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #000;
+}
+
+#pattern-current canvas {
+  border: 1px solid #000;
+}
+
+#pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 36px);
+  grid-auto-rows: 15px;
+  gap: 1px;
+  background: #000;
+}
+
+/* ---------- 문서 창 ---------- */
+
+#window {
+  left: 78px;
+  top: 27px;
+  width: 418px;
+  height: 261px;
+}
+
+#titlebar {
+  position: relative;
+  height: 19px;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid #000;
+}
+
+#titlebar::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 3px;
+  height: 11px;
+  background-image: var(--pattern-stripes);
+  background-size: 8px 8px;
+}
+
+#closebox {
+  position: absolute;
+  left: 8px;
+  top: 3px;
+  width: 11px;
+  height: 11px;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 0 0 0 1px #fff;
+}
+
+#title {
+  position: relative;
+  padding: 0 6px;
+  line-height: 18px;
+  background: #fff;
+}
+
+#view {
+  width: 416px;
+  height: 240px;
+}
+
+/* ---------- 대화상자 ---------- */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog {
+  padding: 2px;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 1px 1px 0 #000;
+}
+
+.dialog-body {
+  width: 260px;
+  padding: 14px 16px 16px;
+  border: 2px solid #000;
+  text-align: center;
+  line-height: 16px;
+}
+
+.dialog-body h1 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.dialog-body p {
+  margin: 0;
+  font-weight: normal;
+}
+
+.button {
+  display: inline-block;
+  margin-top: 14px;
+  height: 20px;
+  padding: 0 20px;
+  line-height: 18px;
+  border: 1px solid #000;
+  border-radius: 7px;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 5px #000;
+}
+
+.button:active {
+  background: #000;
+  color: #fff;
+}
